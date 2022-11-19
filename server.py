@@ -56,7 +56,36 @@ def signup():
             )
     except Exception as e: 
         return jsonify({"error":str(e)})
-
+    
+@app.route('/signin', methods=['POST'])
+def signin():
+    try:
+        if request.method == 'POST':
+            is_user_exist = db.users.find_one({'email' : request.form['email']})
+            if is_user_exist is not None:
+                if bcrypt.checkpw(request.form['password'].encode('utf-8'), is_user_exist['password']):
+                    response = make_response(
+                        jsonify(
+                            {"message": "User logged in successfully"}
+                        ),
+                        200,
+                    )
+                    response.headers["Content-Type"] = "application/json"
+                    return response
+                return make_response(
+                    jsonify(
+                        {"message": "Invalid password"}
+                    ),
+                    200,
+                )
+            return make_response(
+                jsonify(
+                    {"message": "User does not exist"}
+                ),
+                200,
+            )
+    except Exception as e: 
+        return jsonify({"error":str(e)})
 
 
 if __name__ == '__main__':
