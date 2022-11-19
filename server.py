@@ -27,25 +27,37 @@ def notify_user():
     except Exception as e:
         return Response(json.dumps({"message": "Sorry, your email can't be registered"}), mimetype="application/json", status=500)
     
-@app.route('/signup', methods=['POST'])
+@app.route('/signup', methods=['POST', 'GET'])
 def signup():
     try:
-        data = {
-            'email': request.form["email"], 
-            'password': request.form["password"],
-            'firstName': request.form["firstName"],
-            'lastName': request.form["lastName"],}
-        dbResponse = db.users.insert_one(data)
-        response = make_response(
+        if request.method == 'POST':
+            is_user_exist = db.users.find_one({'email' : request.form['email']})
+            hash_password = bcrypt.hashpw(request.form['password'].encode('utf-8'), bcrypt.gensalt())
+            data = {
+                'email': request.form["email"], 
+                'password': hash_password,
+                'firstName': request.form["firstName"],
+                'lastName': request.form["lastName"],}
+            if is_user_exist is None:
+                dbResponse = db.users.insert_one(data)
+                response = make_response(
+                        jsonify(
+                            {"message": "User created successfully"}
+                        ),
+                        200,
+                    )
+                response.headers["Content-Type"] = "application/json"
+                return response
+            return make_response(
                 jsonify(
-                    {"message": "User created successfully"}
+                    {"message": "User already exist"}
                 ),
                 200,
             )
-        response.headers["Content-Type"] = "application/json"
-        return response
     except Exception as e: 
         return jsonify({"error":str(e)})
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
