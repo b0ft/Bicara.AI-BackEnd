@@ -15,7 +15,7 @@ try:
 except:
     print("ERROR - Cannot connect to database")
 
-@app.route('/notifyme', methods=['POST'])
+@app.route('/', methods=['POST'])
 def notify_user():
     try:
         user = {"email": request.form["email"]}
