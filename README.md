@@ -10,5 +10,5 @@
 
 ## Members :
 - Aldy Syachranie
-- Kenya Bhanuwati Pranoto
+- Kenya Bhanuwati Pranoto 1313621019
 - Raden Roro Ziva Azzahrah Khalila
