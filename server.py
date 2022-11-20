@@ -23,7 +23,7 @@ def notify_user():
         if findEmail:
             return Response(json.dumps({"message": "Email already exists"}), mimetype="application/json", status=500)
         dbResponse = db.users.insert_one(user)
-        return Response(response = json.dumps({"message": "Your email has been registered", "id": f"{dbResponse.inserted_id}"}), status = 200, mimetype="application/json")
+        return Response(response = json.dumps({"message": "Thank you for your registration. Your email will be notified once the product is fully launched.", "id": f"{dbResponse.inserted_id}"}), status = 200, mimetype="application/json")
     except Exception as e:
         return Response(json.dumps({"message": "Sorry, your email can't be registered"}), mimetype="application/json", status=500)
     
