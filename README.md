@@ -8,7 +8,12 @@
 
 [**Sprint Backlogs**](https://b0ft.notion.site/b0ft/c389b2a9568c4419b87fca046d5e9ff3?v=3dc2e43a251145fbbe7866e6d9a54e72)
 
-## Members :
+## Team 1 Members :
 - Aldy Syachranie
 - Kenya Bhanuwati Pranoto
 - Raden Roro Ziva Azzahrah Khalila
+
+## Team 2 Members:
+- Annisa Sekar Rini Ayu
+- Fathan Bainal Kaffi
+- Salwa Tsabitah
