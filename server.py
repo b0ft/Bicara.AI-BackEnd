@@ -112,6 +112,21 @@ def signout():
     except Exception as e: 
         return jsonify({"error":str(e)})
 
+@app.route('/', methods=['GET'])
+def getvideo():
+    try:
+        videos = db.videos.find_one({'link': 'https://www.youtube.com/watch?v=7lCDEYXw3mM'}) #link video hanya contoh karena belum ada link video di database
+        response = make_response(
+            jsonify(
+                {"message": "Video fetched successfully"}
+            ),
+            200,
+        )
+        
+        return response
+       
+    except Exception as e: 
+        return jsonify({"error":str(e)})
 
 if __name__ == '__main__':
     app.run(debug=True)
