@@ -1,9 +1,13 @@
-from flask import Flask, Response, request, make_response, jsonify
+from flask import Flask, Response, request, make_response, jsonify,session
 import pymongo
 import json
 from bson.objectid import ObjectId
+from flask_session import Session
 
 app = Flask(__name__)
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_TYPE"] = "filesystem"
+Session(app)
 
 try:
     mongo = pymongo.MongoClient(
@@ -47,6 +51,7 @@ def signup():
                         200,
                     )
                 response.headers["Content-Type"] = "application/json"
+                session['email'] = request.form['email']
                 return response
             return make_response(
                 jsonify(
@@ -56,14 +61,17 @@ def signup():
             )
     except Exception as e: 
         return jsonify({"error":str(e)})
-    
-@app.route('/signin', methods=['POST'])
+
+@app.route('/signin', methods=['POST','GET'])
 def signin():
     try:
+        if 'email' in session:
+            return jsonify({"message":"User already logged in"})
         if request.method == 'POST':
             is_user_exist = db.users.find_one({'email' : request.form['email']})
             if is_user_exist is not None:
                 if bcrypt.checkpw(request.form['password'].encode('utf-8'), is_user_exist['password']):
+                    session["email"] = request.form.get("email")
                     response = make_response(
                         jsonify(
                             {"message": "User logged in successfully"}
@@ -84,6 +92,23 @@ def signin():
                 ),
                 200,
             )
+    except Exception as e: 
+        return jsonify({"error":str(e)})
+
+@app.route('/signout')
+def signout():
+    try:
+        if 'email' in session:
+            session.pop('email', None)
+            response = make_response(
+                jsonify(
+                    {"message": "User logged out successfully"}
+                ),
+                200,
+            )
+            response.headers["Content-Type"] = "application/json"
+            return response
+       
     except Exception as e: 
         return jsonify({"error":str(e)})
 
