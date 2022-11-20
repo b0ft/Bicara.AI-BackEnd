@@ -8,6 +8,8 @@
 
 [**Sprint Backlogs**](https://b0ft.notion.site/b0ft/c389b2a9568c4419b87fca046d5e9ff3?v=3dc2e43a251145fbbe7866e6d9a54e72)
 
+[**Dokumentasi Interface Web Service API Landing Page**](https://documenter.getpostman.com/view/19255819/2s8YmSqze2)
+
 ## Members :
 - Aldy Syachranie
 - Kenya Bhanuwati Pranoto 1313621019
