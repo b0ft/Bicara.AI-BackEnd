@@ -11,6 +11,6 @@
 [**Dokumentasi Interface Web Service API Landing Page**](https://documenter.getpostman.com/view/19255819/2s8YmSqze2)
 
 ## Members :
-- Aldy Syachranie
+- Aldy Syachranie 1313621012
 - Kenya Bhanuwati Pranoto 1313621019
 - Raden Roro Ziva Azzahrah Khalila 1313621034
