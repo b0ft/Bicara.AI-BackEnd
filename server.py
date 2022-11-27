@@ -3,10 +3,18 @@ import pymongo
 import json
 from bson.objectid import ObjectId
 from flask_session import Session
+from flask_mail import Mail, Message
 
 app = Flask(__name__)
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
+app.config['MAIL_SERVER']='smtp.gmail.com'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USERNAME'] = 'boftkingdom@gmail.com'
+app.config['MAIL_PASSWORD'] = 'gyoalqqzzpntdoed'
+app.config['MAIL_USE_SSL'] = True
+app.config['MAIL_USE_TLS'] = False
+mail = Mail(app)
 Session(app)
 
 try:
@@ -19,10 +27,17 @@ try:
 except:
     print("ERROR - Cannot connect to database")
 
+
 @app.route('/', methods=['POST'])
 def notify_user():
     try:
-        user = {"email": request.form["email"]}
+        email = request.form['email'] 
+        user = {"email": email}
+        msg = Message('Hello', sender = 'noreply@demo.com', recipients = [email])
+        msg.body = """
+        Terimakasih sudah mendaftarkan email anda di Bicara AI. Kami akan mengirimkan email kepada anda ketika produk kami sudah siap.
+        """
+        mail.send(msg)
         findEmail = db.users.find_one(user)
         if findEmail:
             return Response(json.dumps({"message": "Email already exists"}), mimetype="application/json", status=500)
@@ -30,7 +45,7 @@ def notify_user():
         return Response(response = json.dumps({"message": "Thank you for your registration. Your email will be notified once the product is fully launched.", "id": f"{dbResponse.inserted_id}"}), status = 200, mimetype="application/json")
     except Exception as e:
         return Response(json.dumps({"message": "Sorry, your email can't be registered"}), mimetype="application/json", status=500)
-    
+
 @app.route('/signup', methods=['POST', 'GET'])
 def signup():
     try:
