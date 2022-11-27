@@ -4,6 +4,7 @@ import json
 from bson.objectid import ObjectId
 from flask_session import Session
 from flask_mail import Mail, Message
+import bcrypt
 
 app = Flask(__name__)
 app.config["SESSION_PERMANENT"] = False
@@ -27,6 +28,9 @@ try:
 except:
     print("ERROR - Cannot connect to database")
 
+@app.route('/', methods=['GET'])
+def index():
+    return render_template('index.html')
 
 @app.route('/', methods=['POST', 'GET'])
 def notify_user():
@@ -70,13 +74,15 @@ def signup():
                     )
                 response.headers["Content-Type"] = "application/json"
                 session['email'] = request.form['email']
-                return response
+                return render_template('index.html')
             return make_response(
                 jsonify(
                     {"message": "User already exist"}
                 ),
                 200,
             )
+        if request.method == 'GET':
+            return render_template('signup.html')
     except Exception as e: 
         return jsonify({"error":str(e)})
 
@@ -97,7 +103,7 @@ def signin():
                         200,
                     )
                     response.headers["Content-Type"] = "application/json"
-                    return response
+                    return render_template('dashboard.html')
                 return make_response(
                     jsonify(
                         {"message": "Invalid password"}
@@ -110,6 +116,8 @@ def signin():
                 ),
                 200,
             )
+            if request.method == 'GET':
+                return render_template('signin.html')
     except Exception as e: 
         return jsonify({"error":str(e)})
 
