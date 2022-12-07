@@ -5,8 +5,10 @@ from bson.objectid import ObjectId
 from flask_session import Session
 from flask_mail import Mail, Message
 import bcrypt
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 app.config['MAIL_SERVER']='smtp.gmail.com'
@@ -28,15 +30,13 @@ try:
 except:
     print("ERROR - Cannot connect to database")
 
-@app.route('/', methods=['GET'])
-def index():
-    return render_template('index.html')
+
 
 @app.route('/', methods=['POST', 'GET'])
 def notify_user():
     if request.method == 'POST':
         try:
-            email = request.form['email'] 
+            email = request.json['email'] 
             user = {"email": email}
             msg = Message('Hello', sender = 'noreply@demo.com', recipients = [email])
             msg.body = """
@@ -44,14 +44,23 @@ def notify_user():
             """
             mail.send(msg)
             findEmail = db.users.find_one(user)
-            if findEmail:
-                return Response(json.dumps({"message": "Email already exists"}), mimetype="application/json", status=500)
+            if findEmail :
+                return Response(response = json.dumps({"message": "Thank you for your registration. Your email will be notified once the product is fully launched."}), status = 200, mimetype="application/json")
             dbResponse = db.users.insert_one(user)
             return Response(response = json.dumps({"message": "Thank you for your registration. Your email will be notified once the product is fully launched.", "id": f"{dbResponse.inserted_id}"}), status = 200, mimetype="application/json")
         except Exception as e:
             return Response(json.dumps({"message": "Sorry, your email can't be registered"}), mimetype="application/json", status=500)
-    elif request.method == 'GET':
-        return render_template('index.html')
+    if request.method == 'GET':
+            try:
+                videos = db.videos.find_one({'link': 'https://www.youtube.com/watch?v=7lCDEYXw3mM'}) #link video hanya contoh karena belum ada link video di database
+                response = make_response(
+                jsonify(
+                {"message": "Video fetched successfully"}),200,
+                )
+                return response
+       
+            except Exception as e: 
+                return jsonify({"error":str(e)})
 
 @app.route('/signup', methods=['POST', 'GET'])
 def signup():
@@ -81,8 +90,8 @@ def signup():
                 ),
                 200,
             )
-        if request.method == 'GET':
-            return render_template('signup.html')
+        
+            
     except Exception as e: 
         return jsonify({"error":str(e)})
 
@@ -116,8 +125,8 @@ def signin():
                 ),
                 200,
             )
-            if request.method == 'GET':
-                return render_template('signin.html')
+        if request.method == 'GET':
+            return render_template('signin.html')
     except Exception as e: 
         return jsonify({"error":str(e)})
 
@@ -138,21 +147,10 @@ def signout():
     except Exception as e: 
         return jsonify({"error":str(e)})
 
-@app.route('/', methods=['GET'])
-def getvideo():
-    try:
-        videos = db.videos.find_one({'link': 'https://www.youtube.com/watch?v=7lCDEYXw3mM'}) #link video hanya contoh karena belum ada link video di database
-        response = make_response(
-            jsonify(
-                {"message": "Video fetched successfully"}
-            ),
-            200,
-        )
+
+    
         
-        return response
-       
-    except Exception as e: 
-        return jsonify({"error":str(e)})
+        
 
 if __name__ == '__main__':
     app.run(debug=True)
