@@ -39,9 +39,7 @@ def notify_user():
             email = request.json['email'] 
             user = {"email": email}
             msg = Message('Hello', sender = 'noreply@demo.com', recipients = [email])
-            msg.body = """
-            Terimakasih sudah mendaftarkan email anda di Bicara AI. Kami akan mengirimkan email kepada anda ketika produk kami sudah siap.
-            """
+            msg.body = "Terimakasih sudah mendaftarkan email anda di Bicara AI. Kami akan mengirimkan email kepada anda ketika produk kami sudah siap."
             mail.send(msg)
             findEmail = db.users.find_one(user)
             if findEmail :
