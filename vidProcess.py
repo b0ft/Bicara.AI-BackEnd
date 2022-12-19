@@ -21,7 +21,7 @@ def videoProcess(filename):
     past_second = 0
     filler_words=["jadi", "kayak","terus","mungkin"]
     filler_total= 0
-
+    x,y,w,h = 0,0,width,75
 
 
     while True:
@@ -60,6 +60,7 @@ def videoProcess(filename):
                 speech = 0
             gaze.refresh(frame)
             frame = gaze.annotated_frame()
+            cv2.rectangle(frame, (x, y), (x + w, y + h), (0,0,0), -1)
             text = ""
 
             if gaze.is_right():
@@ -76,8 +77,6 @@ def videoProcess(filename):
             
             text_filler = f"Filler Words: {filler_total}"
             cv2.putText(frame, text_filler, (400, 60), cv2.FONT_HERSHEY_DUPLEX, 1.3, (255, 0, 0), 2)
-
-
             cv2.putText(frame, text, (60, 60), cv2.FONT_HERSHEY_DUPLEX, 2, (255, 0, 0), 2)
 
             output.write(frame)
@@ -96,7 +95,6 @@ def videoProcess(filename):
     FinClip = mp.VideoFileClip(r"result_filler#2.mp4")
     fin_clip=FinClip.set_audio(FinAudio)
     fin_clip.write_videofile('static/results/'+filename,audio=True, audio_codec='aac')
-    os.remove('converted.mp3')
     os.remove('converted.wav')
     os.remove('output_filler#2.mp4')
     os.remove('result_filler#2.mp4')
