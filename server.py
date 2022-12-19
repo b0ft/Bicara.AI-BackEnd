@@ -1,4 +1,4 @@
-from flask import Flask, Response, request, make_response, jsonify,session, render_template
+from flask import Flask, Response, request, make_response, jsonify,session, render_template,flash,redirect,url_for
 import pymongo
 import json
 from bson.objectid import ObjectId
@@ -6,6 +6,9 @@ from flask_session import Session
 from flask_mail import Mail, Message
 import bcrypt
 from flask_cors import CORS
+from werkzeug.utils import secure_filename
+from collections import Counter
+import vidProcess
 
 app = Flask(__name__)
 CORS(app)
@@ -145,7 +148,35 @@ def signout():
     except Exception as e: 
         return jsonify({"error":str(e)})
 
+@app.route('/upload', methods=['GET','POST'])
+def upload_video():
+	if request.method == 'POST':
+		if 'file' not in request.files:
+			flash('No file part')
+			return redirect(request.url)
+		file = request.files['file']
+		if file.filename == '':
+			flash('No image selected for uploading')
+			return redirect(request.url)
+		else:
+			filename = secure_filename(file.filename)
+			file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+			vidProcess.videoProcess(filename)
+			#print('upload_video filename: ' + filename)
+			flash('Video successfully uploaded and displayed below')
+			return render_template('upload.html', filename=filename)
+	elif request.method == 'GET':
+		return render_template('upload.html')
 
+@app.route('/upload/display/<filename>')
+def display_video(filename):
+	#print('display_video filename: ' + filename)
+	return redirect(url_for('static', filename='results/' + filename), code=301)
+	
+@app.route('/upload/process/<filename>')
+def process_video(filename):
+	#print('display_video filename: ' + filename)
+	return redirect(url_for('static', filename='results/' + filename), code=301)
     
         
         
