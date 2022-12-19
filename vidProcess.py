@@ -1,5 +1,5 @@
 import cv2
-from gaze_tracking import GazeTracking
+from AI.gaze_tracking import GazeTracking
 import speech_recognition as sr 
 import moviepy.editor as mp
 import re
