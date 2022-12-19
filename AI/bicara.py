@@ -26,7 +26,7 @@ while video.isOpened():
         text = ""
         text2 = ""
         message = ""
-        
+
         if gaze.is_right():
             text = "=> right"
             rightCounterInSecond += 1/fps
@@ -48,8 +48,6 @@ while video.isOpened():
         if seconds > duration - 2:
             if centerCounterInSecond > rightCounterInSecond or centerCounterInSecond > leftCounterInSecond:
                 message = "good eye contact"
-            elif centerCounterInSecond == rightCounterInSecond or centerCounterInSecond == leftCounterInSecond:
-                message = "eye contact still need an improvement"
             else:
                 message = "eye contact still need an improvement"
             cv2.putText(frame, message, (60, 180), cv2.FONT_HERSHEY_DUPLEX, 2, (255, 0, 0), 2)
