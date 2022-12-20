@@ -4,6 +4,7 @@ import json
 from bson.objectid import ObjectId
 from flask_session import Session
 from flask_mail import Mail, Message
+import urllib.request
 import bcrypt
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
@@ -12,6 +13,12 @@ import vidProcess
 import os
 
 app = Flask(__name__)
+UPLOAD_FOLDER = 'static/uploads/'
+RESULT_FOLDER = 'static/results/'
+app.secret_key = "secret key"
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['RESULT_FOLDER'] = RESULT_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 CORS(app)
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
@@ -21,12 +28,6 @@ app.config['MAIL_USERNAME'] = 'boftkingdom@gmail.com'
 app.config['MAIL_PASSWORD'] = 'gyoalqqzzpntdoed'
 app.config['MAIL_USE_SSL'] = True
 app.config['MAIL_USE_TLS'] = False
-UPLOAD_FOLDER = 'static/uploads/'
-RESULT_FOLDER = 'static/results/'
-app.secret_key = "secret key"
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['RESULT_FOLDER'] = RESULT_FOLDER
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 mail = Mail(app)
 Session(app)
 

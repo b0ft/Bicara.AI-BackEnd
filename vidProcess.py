@@ -15,9 +15,6 @@ def videoProcess(filename):
     fps = int(video.get(cv2.CAP_PROP_FPS))
     output = cv2.VideoWriter('output_filler#2.mp4',cv2.VideoWriter_fourcc(*'mp4v'), fps, size)
     duration= video.get(cv2.CAP_PROP_FRAME_COUNT)/fps
-    rightCounterInSecond = 0
-    leftCounterInSecond = 0
-    centerCounterInSecond = 0
     frames = 0
     seconds = 0
     speech = 0
@@ -25,6 +22,9 @@ def videoProcess(filename):
     filler_words=["jadi", "kayak","terus","mungkin"]
     filler_total= 0
     x,y,w,h = 0,0,width,75
+    rightCounterInSecond = 0
+    leftCounterInSecond = 0
+    centerCounterInSecond = 0
 
 
     while True:
@@ -66,6 +66,8 @@ def videoProcess(filename):
             cv2.rectangle(frame, (x, y), (x + w, y + h), (0,0,0), -1)
             text = ""
 
+            text2 = ""
+
             if gaze.is_right():
                 text = "=> right"
                 rightCounterInSecond += 1/fps
@@ -80,10 +82,7 @@ def videoProcess(filename):
                     text2 = "up"
                 elif gaze.vertical_ratio() > 0.85:
                     text2 = "down"
-            # elif gaze.is_up():
-            #     text = "up"
-            # elif gaze.is_down():
-            #     text = "down"
+
             
             
             text_filler = f"Filler Words: {filler_total}"
@@ -96,6 +95,7 @@ def videoProcess(filename):
                 else:
                     message = "eye contact still need an improvement"
                 cv2.putText(frame, message, (60, 180), cv2.FONT_HERSHEY_DUPLEX, 2, (255, 0, 0), 2)
+
             output.write(frame)
 
         else:
