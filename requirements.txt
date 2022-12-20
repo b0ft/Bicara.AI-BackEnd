@@ -7,3 +7,4 @@ pymongo == 4.3.3
 SpeechRecognition == 3.9.0
 pydub == 0.25.1
 moviepy == 1.0.3
+opencv-python == 4.6.0.66
