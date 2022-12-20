@@ -115,7 +115,7 @@ def videoProcess(filename):
     os.remove('converted.wav')
     os.remove('output_filler#2.mp4')
     os.remove('result_filler#2.mp4')
-    os.remove('SpeechTextFiller.txt')
+    # os.remove('SpeechTextFiller.txt')
 
 
 
