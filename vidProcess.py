@@ -5,15 +5,17 @@ import moviepy.editor as mp
 import re
 from collections import Counter
 import os
+import time
 
 def videoProcess(filename):
+    start_time = time.time()
     gaze = GazeTracking()
     video = cv2.VideoCapture('static/uploads/'+filename)
     width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
     size = (width, height)
     fps = int(video.get(cv2.CAP_PROP_FPS))
-    output = cv2.VideoWriter('output_filler#2.mp4',cv2.VideoWriter_fourcc(*'mp4v'), fps, size)
+    output = cv2.VideoWriter('output'+filename,cv2.VideoWriter_fourcc(*'mp4v'), fps, size)
     duration= video.get(cv2.CAP_PROP_FRAME_COUNT)/fps
     frames = 0
     seconds = 0
@@ -32,9 +34,9 @@ def videoProcess(filename):
         if speech == 0 and seconds > 0:
             speech = 1
             VidClip = mp.VideoFileClip("static/uploads/" + filename).subclip(0,seconds) 
-            VidClip.audio.write_audiofile("converted.wav")
+            VidClip.audio.write_audiofile(filename+"audio.wav")
             reco = sr.Recognizer()
-            audio = sr.AudioFile("converted.wav")
+            audio = sr.AudioFile(filename+"audio.wav")
             with audio as source:
                 audio_file = reco.record(source)
             try:
@@ -45,12 +47,12 @@ def videoProcess(filename):
                 except  Exception as e:
                         continue
             
-            with open('SpeechTextFiller.txt',mode ='w') as file: 
+            with open(filename+'SpeechToText.txt',mode ='w') as file: 
                 file.write("Recognized Speech Text:") 
                 file.write("\n") 
                 file.write(result) 
                 print("Text file ready!")
-            with open("SpeechTextFiller.txt", "r",encoding="utf8") as external_file:
+            with open(filename+'SpeechToText.txt', "r",encoding="utf8") as external_file:
                 words = external_file.read().lower().split()
                 string = dict(Counter(words))
 
@@ -65,7 +67,6 @@ def videoProcess(filename):
             frame = gaze.annotated_frame()
             cv2.rectangle(frame, (x, y), (x + w, y + h), (0,0,0), -1)
             text = ""
-
             text2 = ""
 
             if gaze.is_right():
@@ -106,16 +107,20 @@ def videoProcess(filename):
     output.release()
 
 
-    ResClip = mp.VideoFileClip(r"output_filler#2.mp4")
-    FinAudio = mp.AudioFileClip('converted.wav')
-    ResClip.write_videofile("result_filler#2.mp4")
-    FinClip = mp.VideoFileClip(r"result_filler#2.mp4")
+    ResClip = mp.VideoFileClip(r"output"+filename)
+    FinAudio = mp.AudioFileClip(filename+"audio.wav")
+    ResClip.write_videofile("result"+filename)
+    FinClip = mp.VideoFileClip(r"result"+filename)
     fin_clip=FinClip.set_audio(FinAudio)
     fin_clip.write_videofile('static/results/'+filename,audio=True, audio_codec='aac')
-    os.remove('converted.wav')
-    os.remove('output_filler#2.mp4')
-    os.remove('result_filler#2.mp4')
-    # os.remove('SpeechTextFiller.txt')
+    os.remove('output'+filename)
+    os.remove('result'+filename)
+    try:
+        os.remove(filename+"audio.wav")
+        os.remove(filename+'SpeechToText.txt')
+    except:
+        pass
+    print("--- %s seconds ---" % (time.time() - start_time))
 
 
 
