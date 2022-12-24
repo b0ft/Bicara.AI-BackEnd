@@ -1,4 +1,4 @@
-from flask import Flask, Response, request, make_response, jsonify,session, render_template,flash,redirect,url_for
+from flask import Flask,current_app, Response, request, make_response, jsonify,session, render_template,flash,redirect,url_for
 import pymongo
 import json
 from bson.objectid import ObjectId
@@ -11,6 +11,7 @@ from werkzeug.utils import secure_filename
 from collections import Counter
 import vidProcess
 import os
+
 
 app = Flask(__name__)
 UPLOAD_FOLDER = 'static/uploads/'
@@ -156,25 +157,31 @@ def signout():
     except Exception as e: 
         return jsonify({"error":str(e)})
 
-@app.route('/upload', methods=['GET','POST'])
+@app.route('/upload', methods=['POST'])
 def upload_video():
-	if request.method == 'POST':
-		if 'file' not in request.files:
-			flash('No file part')
-			return redirect(request.url)
-		file = request.files['file']
-		if file.filename == '':
-			flash('No image selected for uploading')
-			return redirect(request.url)
-		else:
-			filename = secure_filename(file.filename)
-			file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-			vidProcess.videoProcess(filename)
-			#print('upload_video filename: ' + filename)
-			flash('Video successfully uploaded and displayed below')
-			return render_template('upload.html', filename=filename)
-	elif request.method == 'GET':
-		return render_template('upload.html')
+    if request.method == 'POST':
+        current_app.logger.debug(request)
+        current_app.logger.debug(request.form)
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['file']
+        if file.filename == '':
+            flash('No image selected for uploading')
+            return redirect(request.url)
+        else:
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            vidProcess.videoProcess(filename)
+            #print('upload_video filename: ' + filename)
+            flash('Video successfully uploaded and displayed below')
+            return make_response(
+                jsonify(
+                    {"message": "Video successfully uploaded and displayed below"}
+                ),
+                200,
+            )
+    
 
 @app.route('/upload/display/<filename>')
 def display_video(filename):
