@@ -55,6 +55,7 @@ def videoProcess(filename):
             with open(filename+'SpeechToText.txt', "r",encoding="utf8") as external_file:
                 words = external_file.read().lower().split()
                 string = dict(Counter(words))
+                pacing = sum(string.values()) / duration*60
 
             filler_count={key:value for key,value in string.items() if key in filler_words}
             filler_total=sum(filler_count.values())
@@ -121,6 +122,9 @@ def videoProcess(filename):
     except:
         pass
     print("--- %s seconds ---" % (time.time() - start_time))
-
+    if message == "good eye contact":
+        eyeContactMessage = "Good"
+    else:
+        eyeContactMessage = "Need Improvement"
 
 
