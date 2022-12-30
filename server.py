@@ -76,13 +76,13 @@ def notify_user():
 def signup():
     try:
         if request.method == 'POST':
-            is_user_exist = db.users.find_one({'email' : request.form['email']})
-            hash_password = bcrypt.hashpw(request.form['password'].encode('utf-8'), bcrypt.gensalt())
+            is_user_exist = db.users.find_one({'email' : request.json['email']})
+            hash_password = bcrypt.hashpw(request.json['password'].encode('utf-8'), bcrypt.gensalt())
             data = {
-                'email': request.form["email"], 
+                'email': request.json["email"], 
                 'password': hash_password,
-                'firstName': request.form["firstName"],
-                'lastName': request.form["lastName"],}
+                'firstName': request.json["firstName"],
+                'lastName': request.json["lastName"],}
             if is_user_exist is None:
                 dbResponse = db.users.insert_one(data)
                 response = make_response(
@@ -92,8 +92,8 @@ def signup():
                         200,
                     )
                 response.headers["Content-Type"] = "application/json"
-                session['email'] = request.form['email']
-                return render_template('index.html')
+                session['email'] = request.json['email']
+                return response
             return make_response(
                 jsonify(
                     {"message": "User already exist"}
