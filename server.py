@@ -109,23 +109,28 @@ def signup():
 def signin():
     try:
         if 'email' in session:
-            return jsonify({"message":"User already logged in"})
+                return make_response(
+                    jsonify(
+                        {"message": "User already logged in"}
+                    ),
+                    200,
+                )
         if request.method == 'POST':
             is_user_exist = db.users.find_one({'email' : request.form['email']})
             if is_user_exist is not None:
                 if bcrypt.checkpw(request.form['password'].encode('utf-8'), is_user_exist['password']):
-                    session["email"] = request.form.get("email")
+                    session['email'] = request.form['email']
                     response = make_response(
                         jsonify(
-                            {"message": "User logged in successfully"}
+                            {"message": "User logged in successfully", "email": session['email']}
                         ),
                         200,
                     )
                     response.headers["Content-Type"] = "application/json"
-                    return render_template('dashboard.html')
+                    return response
                 return make_response(
                     jsonify(
-                        {"message": "Invalid password"}
+                        {"message": "Invalid password or email"}
                     ),
                     200,
                 )
@@ -135,8 +140,13 @@ def signin():
                 ),
                 200,
             )
-        if request.method == 'GET':
-            return render_template('signin.html')
+        return make_response( 
+            jsonify(
+                {"message": "Please provide email and password"}
+            ),
+            200,
+        )
+
     except Exception as e: 
         return jsonify({"error":str(e)})
 
@@ -144,7 +154,7 @@ def signin():
 def signout():
     try:
         if 'email' in session:
-            session.pop('email', None)
+            os.remove('session/{}.pkl'.format(session))
             response = make_response(
                 jsonify(
                     {"message": "User logged out successfully"}
