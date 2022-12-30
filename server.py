@@ -192,6 +192,27 @@ def display_video(filename):
 def process_video(filename):
 	#print('display_video filename: ' + filename)
 	return redirect(url_for('static', filename='results/' + filename), code=301)
+
+@app.route('/result/<email>', methods=['GET'])
+def get_result(email):
+    try:
+        if request.method == 'GET':
+            
+            result = db.results.find({'email': email})
+            result = list(result)
+            for x in result:
+                x['_id'] = str(x['_id'])
+            current_app.logger.info(result)
+            print(result)
+            response = make_response(
+                jsonify(
+                    {"message": "Result fetched successfully", "result": result}
+                ),  200, 
+            )
+            response.headers["Content-Type"] = "application/json"
+            return response 
+    except Exception as e:
+        return jsonify({"error":str(e)})   
     
         
         
