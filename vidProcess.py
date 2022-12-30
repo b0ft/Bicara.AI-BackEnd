@@ -6,8 +6,9 @@ import re
 from collections import Counter
 import os
 import time
+from datetime import datetime
 
-def videoProcess(filename):
+def videoProcess(filename, email):
     start_time = time.time()
     gaze = GazeTracking()
     video = cv2.VideoCapture('static/uploads/'+filename)
@@ -127,4 +128,14 @@ def videoProcess(filename):
     else:
         eyeContactMessage = "Need Improvement"
 
-
+    data = {
+        "filename": filename,
+        "duration": duration,
+        "filler": filler_total,
+        "eyeContact": eyeContactMessage,
+        "email": email,
+        "pacing": int(pacing),
+        "date": datetime.now(),
+        "fillerWords": filler_count,
+    }
+    return data 
