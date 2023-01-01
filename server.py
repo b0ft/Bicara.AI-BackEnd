@@ -11,6 +11,7 @@ from werkzeug.utils import secure_filename
 from collections import Counter
 import vidProcess
 import os
+import datetime
 
 
 app = Flask(__name__)
@@ -160,20 +161,20 @@ def signout():
 @app.route('/upload', methods=['POST'])
 def upload_video():
     if request.method == 'POST':
-        current_app.logger.debug(request)
-        current_app.logger.debug(request.form)
         if 'file' not in request.files:
             flash('No file part')
             return redirect(request.url)
         file = request.files['file']
+        email = request.form['email']
         if file.filename == '':
             flash('No image selected for uploading')
             return redirect(request.url)
         else:
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            vidProcess.videoProcess(filename)
-            #print('upload_video filename: ' + filename)
+            file.filename = email.split('@')[0] + ' - Bicara.AI - ' + str(datetime.now()) + '.mp4'
+            file.filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
+            analysis = vidProcess.videoProcess(file.filename,email)
+            db.results.insert_one(analysis)
             flash('Video successfully uploaded and displayed below')
             return make_response(
                 jsonify(
