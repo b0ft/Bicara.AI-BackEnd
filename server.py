@@ -204,7 +204,7 @@ def process_video(filename):
 	return redirect(url_for('static', filename='results/' + filename), code=301)
 
 @app.route('/result/<email>', methods=['GET'])
-def get_result(email):
+def get_result_by_email(email):
     try:
         if request.method == 'GET':
             
@@ -223,9 +223,23 @@ def get_result(email):
             return response 
     except Exception as e:
         return jsonify({"error":str(e)})   
-    
-        
-        
+
+
+@app.route('/details/<_id>', methods=['GET'])
+def get_result_by_id(_id):
+    try:
+        result = db.results.find_one({'_id': ObjectId(_id)})
+        result['_id'] = str(result['_id'])
+        response = make_response(
+            jsonify(result,
+                    {"message": "Result fetched successfully"}
+                ),
+            200,
+        )
+        response.headers["Content-Type"] = "application/json"
+        return result
+    except Exception as e:
+        return jsonify({"error":str(e)})
 
 if __name__ == '__main__':
     app.run(debug=True)
