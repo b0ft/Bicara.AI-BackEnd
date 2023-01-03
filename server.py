@@ -11,7 +11,7 @@ from werkzeug.utils import secure_filename
 from collections import Counter
 import vidProcess
 import os
-import datetime
+from datetime import datetime
 
 
 app = Flask(__name__)
@@ -192,7 +192,25 @@ def upload_video():
                 ),
                 200,
             )
-    
+
+@app.route('/user/<email>', methods=['GET'])
+def get_user_by_email(email):
+    try:
+        if request.method == 'GET':
+            
+            user = db.users.find_one({'email': email})
+            user['_id'] = str(user['_id'])
+            user.pop('password', None)
+            response = make_response(
+            jsonify(user,
+                    {"message": "Result fetched successfully"}
+                ),
+            200,
+        )
+        response.headers["Content-Type"] = "application/json"
+        return user
+    except Exception as e:
+        return jsonify({"error":str(e)})
 
 @app.route('/upload/display/<filename>')
 def display_video(filename):
