@@ -130,7 +130,7 @@ def videoProcess(filename, email):
 
     data = {
         "filename": filename,
-        "duration": duration,
+        "duration": int(duration),
         "filler": filler_total,
         "eyeContact": eyeContactMessage,
         "email": email,
