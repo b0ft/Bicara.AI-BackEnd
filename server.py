@@ -185,6 +185,10 @@ def upload_video():
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
             analysis = vidProcess.videoProcess(file.filename,email)
             db.results.insert_one(analysis)
+            msg = Message('Hello', sender = 'noreply@demo.com', recipients = [email])
+            msg.body = "Terima kasih sudah menggunakan Bicara.AI. Video anda telah selesai dianalisis. Silahkan cek hasilnya di Bicara.AI."
+            mail.send(msg)
+            # add notification email after 
             flash('Video successfully uploaded and displayed below')
             return make_response(
                 jsonify(
