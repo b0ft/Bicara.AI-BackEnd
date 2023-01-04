@@ -137,5 +137,6 @@ def videoProcess(filename, email):
         "pacing": int(pacing),
         "date": datetime.now(),
         "fillerWords": filler_count,
+        "transcript": result,
     }
     return data 
