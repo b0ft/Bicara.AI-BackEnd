@@ -67,9 +67,9 @@ def videoProcess(filename, email):
                 speech = 0
             gaze.refresh(frame)
             frame = gaze.annotated_frame()
-            cv2.rectangle(frame, (x, y), (x + w, y + h), (0,0,0), -1)
+            cv2.rectangle(frame, (x, y), (x + w, y + h), (181,224,79), -1)
             text = ""
-            text2 = ""
+            # text2 = ""
 
             if gaze.is_right():
                 text = "=> right"
@@ -80,25 +80,29 @@ def videoProcess(filename, email):
             elif gaze.is_center():
                 text = "=center="
                 centerCounterInSecond += 1/fps
-            if gaze.vertical_ratio() != None:
-                if gaze.vertical_ratio() < 0.15:
-                    text2 = "up"
-                elif gaze.vertical_ratio() > 0.85:
-                    text2 = "down"
+            # if gaze.vertical_ratio() != None:
+            #     if gaze.vertical_ratio() < 0.15:
+            #         text2 = "up"
+            #     elif gaze.vertical_ratio() > 0.85:
+            #         text2 = "down"
 
             
             
             text_filler = f"Filler Words: {filler_total}"
-            cv2.putText(frame, text_filler, (400, 60), cv2.FONT_HERSHEY_DUPLEX, 1.3, (255, 0, 0), 2)
-            cv2.putText(frame, text, (60, 60), cv2.FONT_HERSHEY_DUPLEX, 2, (255, 0, 0), 2)
-            cv2.putText(frame, text2, (60, 120), cv2.FONT_HERSHEY_DUPLEX, 2, (255, 0, 0), 2)
+            if width < height:
+                cv2.putText(frame, text_filler, (int(width*0.5), 45), cv2.FONT_HERSHEY_DUPLEX, 1, (255, 0, 0), 2)
+            else:
+                cv2.putText(frame, text_filler, (int(width*0.75), 45), cv2.FONT_HERSHEY_DUPLEX, 1, (255, 0, 0), 2)
+            # cv2.putText(frame, text2, (60, 120), cv2.FONT_HERSHEY_DUPLEX, 2, (255, 0, 0), 2)
             if seconds > duration - 2:
                 if centerCounterInSecond > rightCounterInSecond or centerCounterInSecond > leftCounterInSecond:
                     message = "good eye contact"
+                    cv2.putText(frame, message,  (20, 45), cv2.FONT_HERSHEY_DUPLEX, 1, (255, 0, 0), 2)
                 else:
-                    message = "eye contact still need an improvement"
-                cv2.putText(frame, message, (60, 180), cv2.FONT_HERSHEY_DUPLEX, 2, (255, 0, 0), 2)
-
+                    message = "eye contact still\nneed an improvement"
+                    cv2.putText(frame, message,  (20, 30), cv2.FONT_HERSHEY_DUPLEX, 1, (0, 0, 255), 2)
+            else:
+                cv2.putText(frame, text, (20, 45), cv2.FONT_HERSHEY_DUPLEX, 1, (255, 0, 0), 2)
             output.write(frame)
 
         else:
