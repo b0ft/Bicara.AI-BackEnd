@@ -1,8 +1,7 @@
-from flask import Flask,current_app, Response, request, make_response, jsonify,session, render_template,flash,redirect,url_for
+from flask import Flask,current_app, Response, request, make_response, jsonify,flash,redirect,url_for
 import pymongo
 import json
 from bson.objectid import ObjectId
-from flask_session import Session
 from flask_mail import Mail, Message
 import urllib.request
 import bcrypt
@@ -22,9 +21,6 @@ def create_app():
     app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
     app.config['RESULT_FOLDER'] = RESULT_FOLDER
     app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
-    CORS(app)
-    app.config["SESSION_PERMANENT"] = False
-    app.config["SESSION_TYPE"] = "filesystem"
     app.config['MAIL_SERVER']='smtp.gmail.com'
     app.config['MAIL_PORT'] = 465
     app.config['MAIL_USERNAME'] = 'boftkingdom@gmail.com'
@@ -32,7 +28,7 @@ def create_app():
     app.config['MAIL_USE_SSL'] = True
     app.config['MAIL_USE_TLS'] = False
     mail = Mail(app)
-    Session(app)
+    CORS(app)
 
     try:
         mongo = pymongo.MongoClient(
@@ -64,7 +60,6 @@ def create_app():
                 return Response(json.dumps({"message": "Sorry, your email can't be registered"}), mimetype="application/json", status=500)
         if request.method == 'GET':
                 try:
-                    videos = db.videos.find_one({'link': 'https://www.youtube.com/watch?v=7lCDEYXw3mM'}) #link video hanya contoh karena belum ada link video di database
                     response = make_response(
                     jsonify(
                     {"message": "Video fetched successfully"}),200,
@@ -94,7 +89,6 @@ def create_app():
                             200,
                         )
                     response.headers["Content-Type"] = "application/json"
-                    session['email'] = request.json['email']
                     return response
                 return make_response(
                     jsonify(
@@ -110,21 +104,13 @@ def create_app():
     @app.route('/signin', methods=['POST','GET'])
     def signin():
         try:
-            if 'email' in session:
-                    return make_response(
-                        jsonify(
-                            {"message": "User already logged in"}
-                        ),
-                        200,
-                    )
             if request.method == 'POST':
                 is_user_exist = db.users.find_one({'email' : request.form['email']})
                 if is_user_exist is not None:
                     if bcrypt.checkpw(request.form['password'].encode('utf-8'), is_user_exist['password']):
-                        session['email'] = request.form['email']
                         response = make_response(
                             jsonify(
-                                {"message": "User logged in successfully", "email": session['email']}
+                                {"message": "User logged in successfully", "email": request.form['email']}
                             ),
                             200,
                         )
@@ -155,8 +141,7 @@ def create_app():
     @app.route('/signout')
     def signout():
         try:
-            if 'email' in session:
-                os.remove('session/{}.pkl'.format(session))
+            if request.method == 'GET':
                 response = make_response(
                     jsonify(
                         {"message": "User logged out successfully"}
