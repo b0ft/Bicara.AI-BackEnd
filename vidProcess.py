@@ -89,10 +89,10 @@ def videoProcess(filename, email):
             
             
             text_filler = f"Filler Words: {filler_total}"
-            if width < height:
-                cv2.putText(frame, text_filler, (int(width*0.5), 45), cv2.FONT_HERSHEY_DUPLEX, 1, (255, 0, 0), 2)
-            else:
+            if 4*width > 3*height and width > 992:
                 cv2.putText(frame, text_filler, (int(width*0.75), 45), cv2.FONT_HERSHEY_DUPLEX, 1, (255, 0, 0), 2)
+            else:
+                cv2.putText(frame, text_filler, (int(width*0.5), 45), cv2.FONT_HERSHEY_DUPLEX, 1, (255, 0, 0), 2)
             # cv2.putText(frame, text2, (60, 120), cv2.FONT_HERSHEY_DUPLEX, 2, (255, 0, 0), 2)
             if seconds > duration - 2:
                 if centerCounterInSecond > rightCounterInSecond or centerCounterInSecond > leftCounterInSecond:
