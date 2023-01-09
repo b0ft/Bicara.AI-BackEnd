@@ -1,4 +1,4 @@
-from flask import Flask,current_app, Response, request, make_response, jsonify,flash,redirect,url_for
+from flask import Flask,current_app, Response, request, make_response, jsonify,flash,redirect,url_for,Blueprint
 import pymongo
 import json
 from bson.objectid import ObjectId
@@ -21,26 +21,21 @@ app.config['RESULT_FOLDER'] = RESULT_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 app.config['MAIL_SERVER']='smtp.gmail.com'
 app.config['MAIL_PORT'] = 465
-app.config['MAIL_USERNAME'] = 'boftkingdom@gmail.com'
-app.config['MAIL_PASSWORD'] = 'gyoalqqzzpntdoed'
+app.config['MAIL_USERNAME'] = 'bicaraai.team@gmail.com'
+app.config['MAIL_PASSWORD'] = 'soqkvyelnvhlvbdz'
 app.config['MAIL_USE_SSL'] = True
 app.config['MAIL_USE_TLS'] = False
-mail = Mail(app)
 CORS(app)
+mail = Mail(app)
 
+api = Blueprint('api', __name__, url_prefix='/api')
 try:
-    mongo = pymongo.MongoClient(
-        host="mongodb://localhost:27017",
-        serverSelectionTimeoutMS = 3000
-    )
+    mongo = pymongo.MongoClient(host="mongodb://localhost:27017",serverSelectionTimeoutMS = 3000,connect=False) # connect = False for deployment purpose
     db = mongo.bicara_ai
-    mongo.server_info()
 except:
     print("ERROR - Cannot connect to database")
 
-
-
-@app.route('/', methods=['POST', 'GET'])
+@api.route('/', methods=['POST', 'GET'])
 def notify_user():
     if request.method == 'POST':
         try:
@@ -55,7 +50,7 @@ def notify_user():
             dbResponse = db.users.insert_one(user)
             return Response(response = json.dumps({"message": "Thank you for your registration. Your email will be notified once the product is fully launched.", "id": f"{dbResponse.inserted_id}"}), status = 200, mimetype="application/json")
         except Exception as e:
-            return Response(json.dumps({"message": "Sorry, your email can't be registered"}), mimetype="application/json", status=500)
+            return Response(json.dumps({"message": str(e)}), mimetype="application/json", status=500)
     if request.method == 'GET':
             try:
                 response = make_response(
@@ -67,7 +62,7 @@ def notify_user():
             except Exception as e: 
                 return jsonify({"error":str(e)})
 
-@app.route('/signup', methods=['POST', 'GET'])
+@api.route('/signup', methods=['POST', 'GET'])
 def signup():
     try:
         if request.method == 'POST':
@@ -99,7 +94,7 @@ def signup():
     except Exception as e: 
         return jsonify({"error":str(e)})
 
-@app.route('/signin', methods=['POST','GET'])
+@api.route('/signin', methods=['POST','GET'])
 def signin():
     try:
         if request.method == 'POST':
@@ -136,7 +131,7 @@ def signin():
     except Exception as e: 
         return jsonify({"error":str(e)})
 
-@app.route('/signout')
+@api.route('/signout')
 def signout():
     try:
         if request.method == 'GET':
@@ -152,7 +147,7 @@ def signout():
     except Exception as e: 
         return jsonify({"error":str(e)})
 
-@app.route('/upload', methods=['POST'])
+@api.route('/upload', methods=['POST'])
 def upload_video():
     if request.method == 'POST':
         if 'file' not in request.files:
@@ -181,7 +176,7 @@ def upload_video():
                 200,
             )
 
-@app.route('/user/<email>', methods=['GET'])
+@api.route('/user/<email>', methods=['GET'])
 def get_user_by_email(email):
     try:
         if request.method == 'GET':
@@ -200,17 +195,17 @@ def get_user_by_email(email):
     except Exception as e:
         return jsonify({"error":str(e)})
 
-@app.route('/upload/display/<filename>')
+@api.route('/upload/display/<filename>')
 def display_video(filename):
     #print('display_video filename: ' + filename)
     return redirect(url_for('static', filename='results/' + filename), code=301)
     
-@app.route('/upload/process/<filename>')
+@api.route('/upload/process/<filename>')
 def process_video(filename):
     #print('display_video filename: ' + filename)
     return redirect(url_for('static', filename='results/' + filename), code=301)
 
-@app.route('/result/<email>', methods=['GET'])
+@api.route('/result/<email>', methods=['GET'])
 def get_result_by_email(email):
     try:
         if request.method == 'GET':
@@ -232,7 +227,7 @@ def get_result_by_email(email):
         return jsonify({"error":str(e)})   
 
 
-@app.route('/details/<_id>', methods=['GET'])
+@api.route('/details/<_id>', methods=['GET'])
 def get_result_by_id(_id):
     try:
         result = db.results.find_one({'_id': ObjectId(_id)})
@@ -246,4 +241,26 @@ def get_result_by_id(_id):
         response.headers["Content-Type"] = "application/json"
         return result
     except Exception as e:
+        return jsonify({"error":str(e)}) 
+        
+@api.route('/user', methods=['GET'])
+def get_user():
+    try:
+        if request.method == 'GET':
+            user = db.users.find()
+            user = list(user)
+            for x in user:
+                x['_id'] = str(x['_id'])
+                x.pop('password', None)
+            response = make_response(
+                jsonify(
+                    {"message": "Result fetched successfully", "user": user}
+                ),
+                200,
+            )
+            response.headers["Content-Type"] = "application/json"
+            return response
+    except Exception as e:
         return jsonify({"error":str(e)})
+
+app.register_blueprint(api)
