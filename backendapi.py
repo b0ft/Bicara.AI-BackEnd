@@ -11,6 +11,7 @@ from collections import Counter
 import vidProcess
 import os
 from datetime import datetime
+import random
 
 app = Flask(__name__)
 UPLOAD_FOLDER = 'static/uploads/'
@@ -30,7 +31,7 @@ mail = Mail(app)
 
 api = Blueprint('api', __name__, url_prefix='/api')
 try:
-    mongo = pymongo.MongoClient(host="mongodb://localhost:27017",serverSelectionTimeoutMS = 3000,connect=False) # connect = False for deployment purpose
+    mongo = pymongo.MongoClient(host="mongodb://localhost:27017",serverSelectionTimeoutMS = 3000,connect=False) # connect = False for deployment purpose and connect = True for only development purpose
     db = mongo.bicara_ai
 except:
     print("ERROR - Cannot connect to database")
@@ -263,4 +264,23 @@ def get_user():
     except Exception as e:
         return jsonify({"error":str(e)})
 
+@api.route('/sendotp', methods=['POST'])
+def send_otp():
+    try:
+        if request.method == 'POST':
+            email = request.json['email']
+            otp = random.randint(100000, 999999)
+            msg = Message('OTP Registration for Bicara.AI', sender = 'noreply@demo.com', recipients = [email])
+            msg.body = "Your OTP is " + str(otp)
+            mail.send(msg)
+            response = make_response(
+                jsonify(
+                    {"message": "OTP sent successfully", "otp": str(otp)}
+                ),
+                200,
+            )
+            response.headers["Content-Type"] = "application/json"
+            return response
+    except Exception as e:
+        return jsonify({"error":str(e)})
 app.register_blueprint(api)
