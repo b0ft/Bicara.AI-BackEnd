@@ -1,6 +1,10 @@
 # Bicara.AI-BackEnd
 
-[You are now in the page of **Backend Repo**]
+Our website is finally live! You can see it [here](http://bicaraai.com/).
+
+If it doesn't work, either the server is down or the website is no longer available.
+
+You are now in the page of **Backend Repo**.
 
 [**FrontEnd Repository**](https://github.com/b0ft/Bicara.AI-FrontEnd)
 
