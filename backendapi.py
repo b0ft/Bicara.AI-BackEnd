@@ -12,6 +12,7 @@ import vidProcess
 import os
 from datetime import datetime
 import random
+from gpt import grammar_check
 
 app = Flask(__name__)
 UPLOAD_FOLDER = 'static/uploads/'
@@ -35,6 +36,14 @@ try:
     db = mongo.bicara_ai
 except:
     print("ERROR - Cannot connect to database")
+
+async def processingVideo(filename, email):
+    analysis = vidProcess.videoProcess(filename,email)
+    db.results.insert_one(analysis)
+    msg = Message('Hello', sender = 'noreply@demo.com', recipients = [email])
+    msg.body = "Terima kasih sudah menggunakan Bicara.AI. Video anda telah selesai dianalisis. Silahkan cek hasilnya di Bicara.AI."
+    mail.send(msg)
+    return "success"
 
 @api.route('/', methods=['POST', 'GET'])
 def notify_user():
@@ -149,7 +158,7 @@ def signout():
         return jsonify({"error":str(e)})
 
 @api.route('/upload', methods=['POST'])
-def upload_video():
+async def upload_video():
     if request.method == 'POST':
         if 'file' not in request.files:
             flash('No file part')
@@ -163,11 +172,7 @@ def upload_video():
             file.filename = email.split('@')[0] + ' - Bicara.AI - ' + str(datetime.now()) + '.mp4'
             file.filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
-            analysis = vidProcess.videoProcess(file.filename,email)
-            db.results.insert_one(analysis)
-            msg = Message('Hello', sender = 'noreply@demo.com', recipients = [email])
-            msg.body = "Terima kasih sudah menggunakan Bicara.AI. Video anda telah selesai dianalisis. Silahkan cek hasilnya di Bicara.AI."
-            mail.send(msg)
+            analysis = await processingVideo(file.filename, email)
             # add notification email after 
             flash('Video successfully uploaded and displayed below')
             return make_response(
@@ -305,4 +310,25 @@ def send_email():
     except Exception as e:
         return jsonify({"error":str(e)})     
 
+@api.route('/gpt', methods=['POST'])
+def gpt():
+    print("gpt-response")
+    try:
+        if request.method == 'POST':
+            text = request.json['Text']
+            print(text)
+            text = grammar_check(text)
+            for res in text:
+                print(res)
+            print(text)
+            response = make_response(
+                jsonify(
+                    {"message": "GPT generated text successfully", "text": text}
+                ),
+                200,
+            )
+            response.headers["Content-Type"] = "application/json"
+            return response
+    except Exception as e:
+        return jsonify({"error":str(e)})
 app.register_blueprint(api)
