@@ -23,7 +23,7 @@ def videoProcess(filename, email):
     frames = 0
     seconds = 0
     speech = 0
-    filler_words=["so", "like","then","maybe"]
+    filler_words=['um','uh','ah','like','okay','so','basically','actually','literally','really','pretty much','you know','i mean','sort of','kind of','well','virtually','apparently','technically','obviously','honestly','seriously','right','okay','alright','anyway','anyways','whatever','oh','wow','ugh','huh','um','uh','ah','like','okay','so','basically','actually','literally','really','pretty much','you know','i mean','sort of','kind of','well','virtually','apparently','technically','obviously','honestly','seriously','right','okay','alright','anyway','anyways','whatever','oh','wow','ugh','huh']
     filler_total= 0
     x,y,w,h = 0,0,width,75
     rightCounterInSecond = 0
